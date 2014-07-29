@@ -7,7 +7,7 @@ var scrollFunc = window.requestAnimationFrame ||
 	 window.oRequestAnimationFrame ||
 	 // IE Fallback
 	 function(callback){ callback() },
-	 MathMax = MathMax;
+	 MathMax = Math.max;
 /**
 	* make event handling as fast as possible
 	* @see: http://net.tutsplus.com/tutorials/javascript-ajax/from-jquery-to-javascript-a-reference
