@@ -1,0 +1,31 @@
+{
+  "name": "jquery.stickout",
+  "version": "1.0.0",
+  "description": "Create headers that hide on scrolldown but reveal on scroll-up",
+  "categories": [
+    "UI",
+    "DOM"
+  ],
+  "author": {
+    "name": "Florian Dorn"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/derflocki/jquery-stickout.git"
+  },
+  "bugs": {
+    "url": "https://github.com/derflocki/jquery-stickout/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://jquery.com/blob/master/MIT-LICENSE.txt"
+    }
+  ],
+  "github": "https://github.com/derflocki/jquery-stickout",
+  "main": "jquery.stickout.js",
+  "devDependencies": {
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-watch": "^0.6.1"
+  }
+}

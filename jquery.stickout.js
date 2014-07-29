@@ -1,42 +1,30 @@
-(function($) {
+(function($, w, d) {
+"use strict";
 var scrollFunc = window.requestAnimationFrame ||
 	 window.webkitRequestAnimationFrame ||
 	 window.mozRequestAnimationFrame ||
 	 window.msRequestAnimationFrame ||
 	 window.oRequestAnimationFrame ||
 	 // IE Fallback
-	 function(callback){ callback() };
-	/**
+	 function(callback){ callback() },
+	 MathMax = MathMax;
+/**
 	* make event handling as fast as possible
 	* @see: http://net.tutsplus.com/tutorials/javascript-ajax/from-jquery-to-javascript-a-reference
 	*/
-
 	var addEvent = (function () {
-		var filter = function(el, type, fn) {
-			for ( var i = 0, len = el.length; i < len; i++ ) {
-				addEvent(el[i], type, fn);
-			}
-		};
-		if ( document.addEventListener ) {
+		if ( d.addEventListener ) {
 			return function (el, type, fn) {
-				if ( el && el.nodeName || el === window ) {
-					el.addEventListener(type, fn, false);
-				} else if (el && el.length) {
-					filter(el, type, fn);
-				}
+				el.addEventListener(type, fn, false);
 			};
 		}
 		return function (el, type, fn) {
-			if ( el && el.nodeName || el === window ) {
-				el.attachEvent('on' + type, function () { return fn.call(el, window.event); });
-			} else if ( el && el.length ) {
-				filter(el, type, fn);
-			}
+			el.attachEvent('on' + type, function () { return fn.call(el, w.event); });
 		};
 	})();
-var prop = "transform", prop_template = "matrix(1, 0, 0, 1, 0, %s)", r = /%s/,
-state = {
-	bottom: {
+var prop = "transform", prop_template = "matrix(1, 0, 0, 1, 0, %s)", r = /%s/;
+var state = {
+	b: {
 		offset: 0,
 		widgetHeight: 0,
 		widget: null,
@@ -48,7 +36,7 @@ state = {
 			position: 'fixed'
 		}
 	},
-	top: {
+	t: {
 		offset: 0,
 		widgetHeight: 0,
 		widget: null,
@@ -60,22 +48,22 @@ state = {
 			position: 'fixed'
 		}
 	},
-	scrollY: null,
+	scrollY: null
 };
 var scroller = function(e) {
-	var scrollY = window.pageYOffset;
+	var scrollY = MathMax(w.pageYOffset, d.body.scrollTop, d.documentElement.scrollTop);
 	if(scrollY == state.scrollY) {
 		return false;
 	}
-	var top_new_pos = state.top.pos || 0, top_old_pos = top_new_pos,
-		bottom_new_pos = state.bottom.pos || 0, bottom_old_pos = bottom_new_pos,
+	var top_new_pos = state.t.pos || 0, top_old_pos = top_new_pos,
+		bottom_new_pos = state.b.pos || 0, bottom_old_pos = bottom_new_pos,
 		scroll = scrollY - state.scrollY;
 	state.scrollY = scrollY;
-	top_new_pos = Math.max(-state.top.widgetHeight + state.top.offset, Math.min(0, top_old_pos - scroll));
-	bottom_new_pos = Math.max(0, Math.min(state.bottom.widgetHeight-state.bottom.offset, bottom_old_pos + scroll));
+	top_new_pos = MathMax(-state.t.widgetHeight + state.t.offset, Math.min(0, top_old_pos - scroll));
+	bottom_new_pos = MathMax(0, Math.min(state.b.widgetHeight-state.b.offset, bottom_old_pos + scroll));
 	if (bottom_new_pos != bottom_old_pos || top_new_pos != top_old_pos) {
-		state.bottom.pos = bottom_new_pos;
-		state.top.pos = top_new_pos;
+		state.b.pos = bottom_new_pos;
+		state.t.pos = top_new_pos;
 		scrollFunc(updater);
 	}
 };
@@ -85,62 +73,63 @@ var updater = null;
  * top only
  */
 var updaterTop = function() {
-	state.top.widget[0].style[prop] = prop_template.replace(r, state.top.pos);
+	state.t.widget[0].style[prop] = prop_template.replace(r, state.t.pos);
 };
 /*
  * bottom only
  */
 var updaterBottom = function() {
-	state.bottom.widget[0].style[prop] = prop_template.replace(r, state.bottom.pos);
+	state.b.widget[0].style[prop] = prop_template.replace(r, state.b.pos);
 };
 /*
  * top and bottom
  */
 var updaterTopBottom = function() {
-	state.top.widget[0].style[prop] = prop_template.replace(r, state.top.pos);
-	state.bottom.widget[0].style[prop] = prop_template.replace(r, state.bottom.pos);
+	state.t.widget[0].style[prop] = prop_template.replace(r, state.t.pos);
+	state.b.widget[0].style[prop] = prop_template.replace(r, state.b.pos);
 };
 
 var css_reset = {'position': '', 'width': ''};
 var resizer = function(e) {
-	if(state.top.widget) {
+	if(state.t.widget) {
 		//reset for proper width-calculation
-		state.top.widget.css(css_reset);
-		state.top.parentWidget.css('margin-top', '');
+		state.t.widget.css(css_reset);
+		state.t.parentWidget.css('margin-top', '');
 		//calc outer width
-		var oh = state.top.widget.outerHeight(true), ow = state.top.widget.outerWidth(true);
+		var oh = state.t.widget.outerHeight(true), ow = state.t.widget.outerWidth(true);
 
 		//set
-		state.top.widgetHeight = oh;
-		state.top.widgetWidth = ow;
-		state.top.css.width = state.top.widgetWidth;
+		state.t.widgetHeight = oh;
+		state.t.widgetWidth = ow;
+		state.t.css.width = state.t.widgetWidth;
 
-		state.top.widget.css(state.top.css);
-		state.top.parentWidget.css('margin-top', state.top.widgetHeight);
+		state.t.widget.css(state.t.css);
+		state.t.parentWidget.css('margin-top', state.t.widgetHeight);
 	}
-	if(state.bottom.widget) {
-		state.bottom.widget.css(css_reset);
-		state.bottom.parentWidget.css('margin-bottom','');
-		var oh = state.bottom.widget.outerHeight(true), ow = state.bottom.widget.outerWidth(true);
+	if(state.b.widget) {
+		state.b.widget.css(css_reset);
+		state.b.parentWidget.css('margin-bottom','');
+		var oh = state.b.widget.outerHeight(true), ow = state.b.widget.outerWidth(true);
 		
-		state.bottom.widgetHeight = oh;
-		state.bottom.widgetWidth = ow;
-		state.bottom.css.width = state.bottom.widgetWidth;
+		state.b.widgetHeight = oh;
+		state.b.widgetWidth = ow;
+		state.b.css.width = state.b.widgetWidth;
 		
-		state.bottom.widget.css(state.bottom.css);
-		state.bottom.parentWidget.css('margin-bottom', state.bottom.offset);
+		state.b.widget.css(state.b.css);
+		state.b.parentWidget.css('margin-bottom', state.b.offset);
 	}
 };
 $.stickout = function(options) {
 	state.scrollY = 0; // Always start at zero, fixes bug when loading page with initial scroll (location.hash)
 
-	var props = ['transform', 
+	var props = [
+		'transform', 
 		'webkitTransform', 
 		'mozTransform',  
 		'oTransform',
 		'top'
 	];
-	var ds = document.body.style; 
+	var ds = d.body.style; 
 	for (var i=0;i<props.length; i++) {
 		if(props[i] in ds) {
 			prop = props[i];
@@ -152,38 +141,38 @@ $.stickout = function(options) {
 	}
 	var opts = $.extend({}, $.stickout.defaults, options);
 	if(opts.top.widget) {
-		state.top.widget = opts.top.widget;
-		state.top.offset = opts.top.offset;
-		state.top.parentWidget = state.top.widget.parent();
+		state.t.widget = opts.top.widget;
+		state.t.offset = opts.top.offset;
+		state.t.parentWidget = state.t.widget.parent();
 	}
 	if(opts.bottom.widget) {
-		state.bottom.widget = opts.bottom.widget;
-		state.bottom.offset = opts.bottom.offset;
-		state.bottom.parentWidget = state.top.widget.parent();
+		state.b.widget = opts.bottom.widget;
+		state.b.offset = opts.bottom.offset;
+		state.b.parentWidget = state.t.widget.parent();
 	}
 	resizer();
-	if(state.top.widget) {
-		state.top.widget.css(state.top.css);
-		if(state.bottom.widget) {
+	if(state.t.widget) {
+		state.t.widget.css(state.t.css);
+		if(state.b.widget) {
 			updater = updaterTopBottom;
 		} else {
 			updater = updaterTop;
 		}
 	}
-	if(state.bottom.widget) {
+	if(state.b.widget) {
 		
-		state.bottom.widget.css(state.bottom.css);
-		if(state.top.widget) {
+		state.b.widget.css(state.b.css);
+		if(state.t.widget) {
 			updater = updaterTopBottom;
 		} else {
 			updater = updaterBottom;
 		}
 	}
-	addEvent(window, 'scroll', scroller);
-	addEvent(window, 'resize', resizer);
+	addEvent(w, 'scroll', scroller);
+	addEvent(w, 'resize', resizer);
 	
 	//initialize scroller for pages with initial scroll
-	if(window.scrollY !== 0) {
+	if(w.scrollY !== 0) {
 		scroller();
 	}
 	return this;
@@ -198,4 +187,4 @@ $.stickout.defaults = {
 		offset: 0
 	}
 };
-})(jQuery);
+})(jQuery, window, document);
