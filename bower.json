@@ -1,0 +1,22 @@
+{
+  "name": "jquery-stickout",
+  "version": "1.0.0",
+  "homepage": "https://github.com/derflocki/jquery-stickout",
+  "authors": [
+    "derflocki <florian.dorn@gmail.com>"
+  ],
+  "description": "Sticky headers that hide on scroll-down but reveal on scroll-up",
+  "main": "jquery.stickout.js",
+  "keywords": [
+    "jquery",
+    "sticky"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
