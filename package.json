@@ -1,6 +1,6 @@
 {
   "name": "jquery.stickout",
-  "version": "1.0.0",
+  "version": "1.0.q",
   "description": "Sticky headers that hide on scroll-down but reveal on scroll-up",
   "categories": [
     "UI",
